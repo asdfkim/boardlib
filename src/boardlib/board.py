@@ -4,10 +4,11 @@ from typing import Self
 import numpy as np
 from numpy.typing import NDArray
 
-from .stone import Stone
 from .exceptions import OutOfBoundsError
 
 class Board:
+    EMPTY: int = 0
+
     def __init__(self, width: int, height: int) -> None:
         self._width = width
         self._height = height
@@ -23,13 +24,22 @@ class Board:
 
     # --- #
 
-    def __getitem__(self, pos: tuple[int, int]) -> Stone:
+    def __getitem__(self, pos: tuple[int, int]) -> int:
         row, col = pos
         return self.get(row, col)
 
-    def __setitem__(self, pos: tuple[int, int], stone: Stone) -> None:
+    def __setitem__(self, pos: tuple[int, int], stone: int) -> None:
         row, col = pos
         self.place(row, col, stone)
+
+    def __str__(self) -> str:
+        # Board의 책임에 사실 시각화는 없다고 생각함
+        # 그래도 이정도는 그냥 넣어봄
+
+        return "\n".join(
+            " ".join(str(self._board[row, col]) for col in range(self._width))
+            for row in range(self._height)
+        )
 
     # --- #
 
@@ -38,18 +48,18 @@ class Board:
 
     def is_empty(self, row: int, col: int) -> bool:
         self._validate(row, col)
-        return bool(self._board[row, col] == Stone.EMPTY)
+        return bool(self._board[row, col] == self.EMPTY)
 
     def is_full(self) -> bool:
-        return bool(np.all(self._board != Stone.EMPTY))
+        return bool(np.all(self._board != self.EMPTY))
 
     # --- #
 
-    def get(self, row: int, col: int) -> Stone:
+    def get(self, row: int, col: int) -> int:
         self._validate(row, col)
-        return Stone(self._board[row, col])
+        return int(self._board[row, col])
 
-    def place(self, row: int, col: int, stone: Stone) -> None:
+    def place(self, row: int, col: int, stone: int) -> None:
         # 사실 '이미 돌이 있는 자리에 돌을 두어도 되는가?' 에 대한 검증 로직을 둘지 말지 고민했었음.
         # 결과적으로는 검증 로직을 제거하기로 결정함. = 'Board 의 책임에는 게임 관련 로직이 없어야 한다.' 라고 판단.
 
@@ -57,13 +67,13 @@ class Board:
         self._board[row, col] = stone
 
     def remove(self, row: int, col: int) -> None:
-        self.place(row, col, Stone.EMPTY)
+        self.place(row, col, self.EMPTY)
 
-    def fill(self, stone: Stone) -> None:
+    def fill(self, stone: int) -> None:
         self._board[:] = stone
 
     def reset(self) -> None:
-        self.fill(Stone.EMPTY)
+        self.fill(self.EMPTY)
 
     def copy(self) -> Self:
         return copy.deepcopy(self)
