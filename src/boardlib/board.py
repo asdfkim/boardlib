@@ -25,52 +25,46 @@ class Board:
     # --- #
 
     def __getitem__(self, pos: tuple[int, int]) -> int:
-        row, col = pos
-        return self.get(row, col)
+        x, y = pos
+        return self.get(x, y)
 
-    def __setitem__(self, pos: tuple[int, int], stone: int) -> None:
-        row, col = pos
-        self.place(row, col, stone)
+    def __setitem__(self, pos: tuple[int, int], value: int) -> None:
+        x, y = pos
+        self.place(x, y, value)
 
     def __str__(self) -> str:
-        # Board의 책임에 사실 시각화는 없다고 생각함
-        # 그래도 이정도는 그냥 넣어봄
-
         return "\n".join(
-            " ".join(str(self._board[row, col]) for col in range(self._width))
-            for row in range(self._height)
+            " ".join(str(self._board[y, x]) for x in range(self._width))
+            for y in range(self._height)
         )
 
     # --- #
 
-    def is_valid(self, row: int, col: int) -> bool:
-        return bool(0 <= row < self._height and 0 <= col < self._width)
+    def is_valid(self, x: int, y: int) -> bool:
+        return bool(0 <= x < self._width and 0 <= y < self._height)
 
-    def is_empty(self, row: int, col: int) -> bool:
-        self._validate(row, col)
-        return bool(self._board[row, col] == self.EMPTY)
+    def is_empty(self, x: int, y: int) -> bool:
+        self._validate(x, y)
+        return bool(self._board[y, x] == self.EMPTY)
 
     def is_full(self) -> bool:
         return bool(np.all(self._board != self.EMPTY))
 
     # --- #
 
-    def get(self, row: int, col: int) -> int:
-        self._validate(row, col)
-        return int(self._board[row, col])
+    def get(self, x: int, y: int) -> int:
+        self._validate(x, y)
+        return int(self._board[y, x])
 
-    def place(self, row: int, col: int, stone: int) -> None:
-        # 사실 '이미 돌이 있는 자리에 돌을 두어도 되는가?' 에 대한 검증 로직을 둘지 말지 고민했었음.
-        # 결과적으로는 검증 로직을 제거하기로 결정함. = 'Board 의 책임에는 게임 관련 로직이 없어야 한다.' 라고 판단.
+    def place(self, x: int, y: int, value: int) -> None:
+        self._validate(x, y)
+        self._board[y, x] = value
 
-        self._validate(row, col)
-        self._board[row, col] = stone
+    def remove(self, x: int, y: int) -> None:
+        self.place(x, y, self.EMPTY)
 
-    def remove(self, row: int, col: int) -> None:
-        self.place(row, col, self.EMPTY)
-
-    def fill(self, stone: int) -> None:
-        self._board[:] = stone
+    def fill(self, value: int) -> None:
+        self._board[:] = value
 
     def reset(self) -> None:
         self.fill(self.EMPTY)
@@ -80,6 +74,6 @@ class Board:
 
     # --- #
 
-    def _validate(self, row: int, col: int) -> None:
-        if not self.is_valid(row, col):
+    def _validate(self, x: int, y: int) -> None:
+        if not self.is_valid(x, y):
             raise OutOfBoundsError()
