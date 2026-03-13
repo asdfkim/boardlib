@@ -1,0 +1,13 @@
+[project]
+name = "boardlib"
+version = "0.1.0"
+description = "by asdfkim"
+license = { text = "MIT" }
+authors = [
+    { name = "asdfkim" }
+]
+
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=2.2.6",
+]
